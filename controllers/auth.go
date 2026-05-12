@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -36,7 +37,12 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 		defer cancel()
 
 		// Check existing email
-		count, _ := users.CountDocuments(ctx, bson.M{"email": input.Email})
+		count, err := users.CountDocuments(ctx, bson.M{"email": input.Email})
+		if err != nil {
+			log.Printf("count error: %v", err)
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
 		if count > 0 {
 			c.JSON(http.StatusConflict, gin.H{"error": "email already registered"})
 			return
@@ -58,10 +64,16 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 			UpdatedAt: time.Now(),
 		}
 
-		if _, err := users.InsertOne(ctx, user); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create user"})
+		_, err = users.InsertOne(ctx, user)
+		if err != nil {
+			log.Printf("insert error: %v", err)
+			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
+		// if _, err := users.InsertOne(ctx, user); err != nil {
+		// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create user"})
+		// 	return
+		// }
 
 		c.JSON(http.StatusCreated, gin.H{
 			"status":  201,
