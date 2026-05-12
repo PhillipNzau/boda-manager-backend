@@ -13,33 +13,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	r.POST("/auth/login", controllers.Login(cfg))
 	r.POST("/auth/refresh", controllers.RefreshToken(cfg))
 
-	// otp
-	r.POST("/auth/request-otp", controllers.RequestOTP(cfg))
-	// r.POST("/auth/verify-otp", controllers.VerifyOTP(cfg))
-
 	auth := middleware.AuthMiddleware(cfg)
-
-	
-	// -----------------------------
-	// Import / Export
-	// -----------------------------
-	export := r.Group("/export")
-	export.Use(auth)
-	{
-		export.GET("/credentials/excel", controllers.ExportCredentialsExcel(cfg))
-		export.GET("/subscriptions/excel", controllers.ExportSubscriptionsExcel)
-		export.GET("/resources/excel", controllers.ExportResourcesExcel)
-	}
-
-	imports := r.Group("/import")
-	imports.Use(auth)
-	{
-		imports.POST("/credentials/excel", controllers.ImportCredentialsExcel(cfg))
-		imports.POST("/subscriptions/excel", controllers.ImportSubscriptionsExcel)
-		// imports.POST("/resources/excel", controllers.ImportResourcesExcel)
-	}
-
-	
 
 	// =====================================================
 	// BODA MANAGER ROUTES
@@ -98,7 +72,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	analytics := r.Group("/analytics")
 	analytics.Use(auth)
 	{
-		analytics.GET("/subscriptions", controllers.MonthlySummary(cfg)) // old
 		analytics.GET("/monthly", controllers.MonthlyAnalytics(cfg))
 		analytics.GET("/motorcycles/:id", controllers.MotorcycleProfitability(cfg))
 	}

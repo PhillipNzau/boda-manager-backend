@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/PhillipNzau/boda-manager-backend/config"
+	"github.com/PhillipNzau/boda-manager-backend/middleware"
 	"github.com/PhillipNzau/boda-manager-backend/routes"
 )
 
@@ -51,6 +52,8 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	r.Use(middleware.ETagMiddleware())
 
 	routes.SetupRoutes(r, cfg)
 

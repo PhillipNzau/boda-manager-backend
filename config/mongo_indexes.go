@@ -10,118 +10,165 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// EnsureHubIndexes creates indexes for the hubs collection
-func EnsureHubIndexes(client *mongo.Client, dbName string) {
+// USERS
+func EnsureUserIndexes(client *mongo.Client, dbName string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	col := client.Database(dbName).Collection("hubs")
+	col := client.Database(dbName).Collection("users")
 
-	userIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "user_id", Value: 1}},
-		Options: options.Index().SetBackground(true),
+	emailIdx := mongo.IndexModel{
+		Keys: bson.D{{Key: "email", Value: 1}},
+		Options: options.Index().
+			SetUnique(true),
 	}
 
-	typeIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "type", Value: 1}},
-		Options: options.Index().SetBackground(true),
-	}
-
-	_, err := col.Indexes().CreateMany(ctx, []mongo.IndexModel{userIdx, typeIdx})
+	_, err := col.Indexes().CreateOne(ctx, emailIdx)
 	if err != nil {
-		log.Printf("⚠️ Could not create hub indexes: %v", err)
-	} else {
-		log.Println("✅ Hub indexes ensured")
+		log.Printf("Could not create user indexes: %v", err)
+		return
 	}
+
+	log.Println("User indexes ensured")
 }
 
-// EnsureCategoryIndexes creates indexes for the categories collection
-func EnsureCategoryIndexes(client *mongo.Client, dbName string) {
+// RIDERS
+func EnsureRiderIndexes(client *mongo.Client, dbName string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	col := client.Database(dbName).Collection("categories")
+	col := client.Database(dbName).Collection("riders")
 
-	userIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "user_id", Value: 1}},
-		Options: options.Index().SetBackground(true),
+	indexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{{Key: "phone", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys: bson.D{{Key: "national_id", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
 	}
 
-	nameIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "name", Value: 1}},
-		Options: options.Index().SetBackground(true),
-	}
-
-	_, err := col.Indexes().CreateMany(ctx, []mongo.IndexModel{userIdx, nameIdx})
+	_, err := col.Indexes().CreateMany(ctx, indexes)
 	if err != nil {
-		log.Printf("⚠️ Could not create category indexes: %v", err)
-	} else {
-		log.Println("✅ Category indexes ensured")
+		log.Printf("Could not create rider indexes: %v", err)
+		return
 	}
+
+	log.Println("Rider indexes ensured")
 }
 
-// EnsureCredentialIndexes creates indexes for the credentials collection
-func EnsureCredentialIndexes(client *mongo.Client, dbName string) {
+// MOTORCYCLES
+func EnsureMotorcycleIndexes(client *mongo.Client, dbName string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	col := client.Database(dbName).Collection("credentials")
+	col := client.Database(dbName).Collection("motorcycles")
 
-	userIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "user_id", Value: 1}},
-		Options: options.Index().SetBackground(true),
+	indexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{{Key: "plate_number", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys: bson.D{{Key: "assigned_rider_id", Value: 1}},
+		},
 	}
 
-	siteIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "site", Value: 1}},
-		Options: options.Index().SetBackground(true),
-	}
-
-	uniqueUserSiteIdx := mongo.IndexModel{
-    Keys: bson.D{
-        {Key: "user_id", Value: 1},
-        {Key: "site_name", Value: 1},
-    },
-    Options: options.Index().SetUnique(true).SetBackground(true),
-}
-
-	_, err := col.Indexes().CreateMany(ctx, []mongo.IndexModel{userIdx, siteIdx, uniqueUserSiteIdx})
+	_, err := col.Indexes().CreateMany(ctx, indexes)
 	if err != nil {
-		log.Printf("⚠️ Could not create credential indexes: %v", err)
-	} else {
-		log.Println("✅ Credential indexes ensured")
+		log.Printf("Could not create motorcycle indexes: %v", err)
+		return
 	}
+
+	log.Println("Motorcycle indexes ensured")
 }
 
-// EnsureSubscriptionIndexes creates indexes for the subscriptions collection
-func EnsureSubscriptionIndexes(client *mongo.Client, dbName string) {
+// RIDES
+func EnsureRideIndexes(client *mongo.Client, dbName string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	col := client.Database(dbName).Collection("subscriptions")
+	col := client.Database(dbName).Collection("rides")
 
-	userIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "user_id", Value: 1}},
-		Options: options.Index().SetBackground(true),
+	indexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{{Key: "rider_id", Value: 1}},
+		},
+		{
+			Keys: bson.D{{Key: "motorcycle_id", Value: 1}},
+		},
+		{
+			Keys: bson.D{{Key: "ride_date", Value: -1}},
+		},
 	}
 
-	serviceIdx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "service_name", Value: 1}},
-		Options: options.Index().SetBackground(true),
-	}
-
-	_, err := col.Indexes().CreateMany(ctx, []mongo.IndexModel{userIdx, serviceIdx})
+	_, err := col.Indexes().CreateMany(ctx, indexes)
 	if err != nil {
-		log.Printf("⚠️ Could not create subscription indexes: %v", err)
-	} else {
-		log.Println("✅ Subscription indexes ensured")
+		log.Printf("Could not create ride indexes: %v", err)
+		return
 	}
+
+	log.Println("Ride indexes ensured")
 }
 
-// EnsureAllIndexes creates indexes for all collections
+// EXPENSES
+func EnsureExpenseIndexes(client *mongo.Client, dbName string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	col := client.Database(dbName).Collection("expenses")
+
+	indexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{{Key: "motorcycle_id", Value: 1}},
+		},
+		{
+			Keys: bson.D{{Key: "expense_date", Value: -1}},
+		},
+	}
+
+	_, err := col.Indexes().CreateMany(ctx, indexes)
+	if err != nil {
+		log.Printf("Could not create expense indexes: %v", err)
+		return
+	}
+
+	log.Println("Expense indexes ensured")
+}
+
+// PAYOUTS
+func EnsurePayoutIndexes(client *mongo.Client, dbName string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	col := client.Database(dbName).Collection("payouts")
+
+	indexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{{Key: "rider_id", Value: 1}},
+		},
+		{
+			Keys: bson.D{{Key: "payout_date", Value: -1}},
+		},
+	}
+
+	_, err := col.Indexes().CreateMany(ctx, indexes)
+	if err != nil {
+		log.Printf("Could not create payout indexes: %v", err)
+		return
+	}
+
+	log.Println("Payout indexes ensured")
+}
+
+// ALL INDEXES
 func EnsureAllIndexes(client *mongo.Client, dbName string) {
-	EnsureHubIndexes(client, dbName)
-	EnsureCategoryIndexes(client, dbName)
-	EnsureCredentialIndexes(client, dbName)
-	EnsureSubscriptionIndexes(client, dbName)
+	EnsureUserIndexes(client, dbName)
+	EnsureRiderIndexes(client, dbName)
+	EnsureMotorcycleIndexes(client, dbName)
+	EnsureRideIndexes(client, dbName)
+	EnsureExpenseIndexes(client, dbName)
+	EnsurePayoutIndexes(client, dbName)
 }

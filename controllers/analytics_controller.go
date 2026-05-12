@@ -89,3 +89,4 @@ func MonthlyAnalytics(cfg *config.Config) gin.HandlerFunc {
 		})
 	}
 }
+
