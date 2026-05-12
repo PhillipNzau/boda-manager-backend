@@ -34,6 +34,7 @@ func main() {
 		AllowOrigins: []string{
 			"https://sub-safe-two.vercel.app",
 			"https://www.subsafe.co.ke",
+			"https://boda-manager.vercel.app",
 			"http://localhost:4200",
 		},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
