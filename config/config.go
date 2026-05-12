@@ -86,11 +86,11 @@ func ensureIndexes(cfg *Config) error {
 	riders := db.Collection("riders")
 	_, err = riders.Indexes().CreateMany(ctx, []mongo.IndexModel{
 		{
-			Keys: bson.D{{Key: "phone", Value: 1}},
+			Keys: bson.D{{Key: "phone_number", Value: 1}},
 			Options: options.Index().SetUnique(true),
 		},
 		{
-			Keys: bson.D{{Key: "national_id", Value: 1}},
+			Keys: bson.D{{Key: "license_no", Value: 1}},
 			Options: options.Index().SetUnique(true),
 		},
 	})
@@ -106,7 +106,7 @@ func ensureIndexes(cfg *Config) error {
 			Options: options.Index().SetUnique(true),
 		},
 		{
-			Keys: bson.D{{Key: "assigned_rider_id", Value: 1}},
+			Keys: bson.D{{Key: "user_id", Value: 1}},
 		},
 	})
 	if err != nil {
@@ -120,11 +120,9 @@ func ensureIndexes(cfg *Config) error {
 			Keys: bson.D{{Key: "motorcycle_id", Value: 1}},
 		},
 		{
-			Keys: bson.D{{Key: "rider_id", Value: 1}},
+			Keys: bson.D{{Key: "user_id", Value: 1}},
 		},
-		{
-			Keys: bson.D{{Key: "ride_date", Value: -1}},
-		},
+	
 	})
 	if err != nil {
 		return err
@@ -136,9 +134,7 @@ func ensureIndexes(cfg *Config) error {
 		{
 			Keys: bson.D{{Key: "motorcycle_id", Value: 1}},
 		},
-		{
-			Keys: bson.D{{Key: "expense_date", Value: -1}},
-		},
+		
 	})
 	if err != nil {
 		return err
@@ -148,11 +144,9 @@ func ensureIndexes(cfg *Config) error {
 	payouts := db.Collection("payouts")
 	_, err = payouts.Indexes().CreateMany(ctx, []mongo.IndexModel{
 		{
-			Keys: bson.D{{Key: "rider_id", Value: 1}},
+			Keys: bson.D{{Key: "user_id", Value: 1}},
 		},
-		{
-			Keys: bson.D{{Key: "payout_date", Value: -1}},
-		},
+	
 	})
 	if err != nil {
 		return err

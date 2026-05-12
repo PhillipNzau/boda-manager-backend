@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -34,7 +35,7 @@ func CreateRider(cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 38*time.Second)
 		defer cancel()
 
 		db := cfg.MongoClient.Database(cfg.DBName)
@@ -114,10 +115,18 @@ func CreateRider(cfg *config.Config) gin.HandlerFunc {
 
 		motoCol := cfg.MongoClient.Database(cfg.DBName).Collection("motorcycles")
 
-		count, _ := motoCol.CountDocuments(ctx, bson.M{
-			"_id":    motorcycleID,
+		count, err := motoCol.CountDocuments(ctx, bson.M{
+			"_id":     motorcycleID,
 			"user_id": userID,
 		})
+		if err != nil {
+			log.Println("motorcycle count error:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "failed checking motorcycle",
+				"details": err.Error(),
+			})
+			return
+		}
 
 		if count == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "motorcycle does not exist"})
@@ -139,7 +148,11 @@ func CreateRider(cfg *config.Config) gin.HandlerFunc {
 
 		_, err = ridersCol.InsertOne(ctx, rider)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating rider"})
+			log.Println("insert error:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "failed creating rider",
+				"details": err.Error(),
+			})
 			return
 		}
 
