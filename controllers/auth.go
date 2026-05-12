@@ -70,14 +70,27 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		// if _, err := users.InsertOne(ctx, user); err != nil {
-		// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create user"})
-		// 	return
-		// }
+		
+		// Generate tokens
+		accessToken, refreshToken, err := createTokensForUser(user.ID, cfg)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "token generation failed"})
+			return
+		}
 
-		c.JSON(http.StatusCreated, gin.H{
-			"status":  201,
-			"message": "user created successfully",
+		users.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
+			"$set": bson.M{"refresh_token": refreshToken},
+		})
+
+		c.JSON(http.StatusOK, gin.H{
+			"status":        200,
+			"access_token":  accessToken,
+			"refresh_token": refreshToken,
+			"user": gin.H{
+				"id":    user.ID.Hex(),
+				"name":  user.Name,
+				"email": user.Email,
+			},
 		})
 	}
 }
