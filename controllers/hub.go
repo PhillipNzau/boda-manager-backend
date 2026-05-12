@@ -52,7 +52,7 @@ func CreateHub(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("hubs")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		_, err = col.InsertOne(ctx, hub)
@@ -76,7 +76,7 @@ func ListHubs(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("hubs")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		filter := bson.M{"user_id": userID}
@@ -131,7 +131,7 @@ func GetHub(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		var hub models.Hub
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		err = cfg.MongoClient.Database(cfg.DBName).
@@ -200,7 +200,7 @@ func UpdateHub(cfg *config.Config) gin.HandlerFunc {
 
 		// ✅ Perform update with ownership check
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("hubs")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		res, err := col.UpdateOne(ctx, bson.M{"_id": oid, "user_id": userID}, bson.M{"$set": update})
@@ -241,7 +241,7 @@ func DeleteHub(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("hubs")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		// ✅ Ensure user ownership before deletion

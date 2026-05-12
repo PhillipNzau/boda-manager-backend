@@ -90,7 +90,7 @@ func ListExpenses(cfg *config.Config) gin.HandlerFunc {
 		uid := c.GetString("user_id")
 		userID, _ := primitive.ObjectIDFromHex(uid)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		cursor, err := cfg.MongoClient.Database(cfg.DBName).

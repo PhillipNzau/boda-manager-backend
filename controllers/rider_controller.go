@@ -153,7 +153,7 @@ func ListRiders(cfg *config.Config) gin.HandlerFunc {
 		userID, _ := primitive.ObjectIDFromHex(uid)
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("riders")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		cursor, err := col.Find(ctx, bson.M{"user_id": userID})
@@ -181,7 +181,7 @@ func DeleteRider(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("riders")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		res, err := col.DeleteOne(ctx, bson.M{

@@ -77,7 +77,7 @@ func CreateSubscription(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("subscriptions")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		if _, err := col.InsertOne(ctx, sub); err != nil {
@@ -152,7 +152,7 @@ func GetSubscription(cfg *config.Config) gin.HandlerFunc {
 		oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("subscriptions")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		var sub models.Subscription
@@ -253,7 +253,7 @@ func UpdateSubscription(cfg *config.Config) gin.HandlerFunc {
 
 		// ✅ Update with ownership enforcement
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("subscriptions")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		res, err := col.UpdateOne(ctx, bson.M{"_id": oid, "user_id": userID}, bson.M{"$set": update})
@@ -295,7 +295,7 @@ func DeleteSubscription(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("subscriptions")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		// ✅ Delete only if user owns the subscription

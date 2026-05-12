@@ -29,7 +29,7 @@ func CreateMotorcycle(cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("motorcycles")
@@ -73,7 +73,7 @@ func ListMotorcycles(cfg *config.Config) gin.HandlerFunc {
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("motorcycles")
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		cursor, _ := col.Find(ctx, bson.M{"user_id": userID})

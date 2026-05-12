@@ -43,7 +43,7 @@ func CreateCategory(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("categories")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		_, err = col.InsertOne(ctx, category)
@@ -61,7 +61,7 @@ func ListCategories(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("categories")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		cursor, err := col.Find(ctx, bson.M{})
@@ -94,7 +94,7 @@ func GetCategory(cfg *config.Config) gin.HandlerFunc {
         }
 
         var category models.Category
-        ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
         defer cancel()
 
         err = cfg.MongoClient.Database(cfg.DBName).
@@ -149,7 +149,7 @@ func UpdateCategory(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("categories")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		res, err := col.UpdateOne(ctx, bson.M{"_id": oid, "user_id": userID}, bson.M{"$set": update})
@@ -179,7 +179,7 @@ func DeleteCategory(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("categories")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		res, err := col.DeleteOne(ctx, bson.M{"_id": oid, "user_id": userID})

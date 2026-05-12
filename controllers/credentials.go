@@ -71,7 +71,7 @@ func CreateCredential(cfg *config.Config) gin.HandlerFunc {
 
 		// ✅ Insert into MongoDB
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("credentials")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		if _, err := col.InsertOne(ctx, cred); err != nil {
@@ -194,7 +194,7 @@ func GetCredential(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		var credential models.Credential
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		err = cfg.MongoClient.Database(cfg.DBName).
@@ -265,7 +265,7 @@ func UpdateCredential(cfg *config.Config) gin.HandlerFunc {
 
 		// ✅ Find the credential and ensure ownership
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("credentials")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		var existing models.Credential
@@ -347,7 +347,7 @@ func DeleteCredential(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		col := cfg.MongoClient.Database(cfg.DBName).Collection("credentials")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		// ✅ Delete only if the user owns the credential

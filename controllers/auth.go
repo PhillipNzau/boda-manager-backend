@@ -33,7 +33,7 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		users := cfg.MongoClient.Database(cfg.DBName).Collection("users")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		// Check existing email
@@ -98,7 +98,7 @@ func Login(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		users := cfg.MongoClient.Database(cfg.DBName).Collection("users")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		var user models.User
@@ -167,7 +167,7 @@ func RefreshToken(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		users := cfg.MongoClient.Database(cfg.DBName).Collection("users")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		var user models.User
