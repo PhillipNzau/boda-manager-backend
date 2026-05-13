@@ -25,7 +25,15 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	{
 		riders.POST("", controllers.CreateRider(cfg))
 		riders.GET("", controllers.ListRiders(cfg))
-		riders.DELETE(":id", controllers.DeleteRider(cfg))
+		riders.GET("/:id", controllers.GetRider(cfg))
+		riders.PUT("/:id", controllers.UpdateRider(cfg))
+		riders.DELETE("/:id", controllers.DeleteRider(cfg))
+	}
+
+	exports := r.Group("/exports")
+	exports.Use(auth)
+	{
+		exports.GET("/report", controllers.ExportReportExcel(cfg))
 	}
 
 	// Rides
@@ -34,6 +42,8 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	{
 		rides.POST("", controllers.CreateRide(cfg))
 		rides.GET("", controllers.ListRides(cfg))
+		rides.PUT("/:id", controllers.UpdateRide(cfg))
+		rides.DELETE("/:id", controllers.DeleteRide(cfg))
 	}
 
 	// Payments

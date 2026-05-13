@@ -151,3 +151,161 @@ func MotorcycleProfitability(cfg *config.Config) gin.HandlerFunc {
 		})
 	}
 }
+
+func UpdateRide(cfg *config.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		uid := c.GetString("user_id")
+		userID, err := primitive.ObjectIDFromHex(uid)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user"})
+			return
+		}
+
+		rideID, err := primitive.ObjectIDFromHex(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ride id"})
+			return
+		}
+
+		var input struct {
+			RiderID  string  `json:"rider_id"`
+			Date     string  `json:"date"`
+			Trips    int     `json:"trips"`
+			Income   float64 `json:"income"`
+			FuelCost float64 `json:"fuel_cost"`
+			Expenses float64 `json:"expenses"`
+			Notes    string  `json:"notes"`
+		}
+
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+
+		db := cfg.MongoClient.Database(cfg.DBName)
+		ridesCol := db.Collection("rides")
+		ridersCol := db.Collection("riders")
+
+		update := bson.M{
+			"updated_at": time.Now(),
+		}
+
+		if input.Date != "" {
+			update["date"] = input.Date
+		}
+
+		if input.Trips > 0 {
+			update["trips"] = input.Trips
+		}
+
+		if input.Income > 0 {
+			update["income"] = input.Income
+		}
+
+		if input.FuelCost >= 0 {
+			update["fuel_cost"] = input.FuelCost
+		}
+
+		if input.Expenses >= 0 {
+			update["expenses"] = input.Expenses
+		}
+
+		if input.Notes != "" {
+			update["notes"] = input.Notes
+		}
+
+		// If rider changes, update rider_id + motorcycle_id automatically
+		if input.RiderID != "" {
+			riderID, err := primitive.ObjectIDFromHex(input.RiderID)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid rider id"})
+				return
+			}
+
+			var rider models.Rider
+			err = ridersCol.FindOne(ctx, bson.M{
+				"_id":     riderID,
+				"user_id": userID,
+			}).Decode(&rider)
+
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "rider not found"})
+				return
+			}
+
+			update["rider_id"] = riderID
+			update["motorcycle_id"] = rider.MotorcycleID
+		}
+
+		res, err := ridesCol.UpdateOne(
+			ctx,
+			bson.M{
+				"_id":     rideID,
+				"user_id": userID,
+			},
+			bson.M{
+				"$set": update,
+			},
+		)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed updating ride"})
+			return
+		}
+
+		if res.MatchedCount == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "ride not found"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "ride updated"})
+	}
+}
+
+func DeleteRide(cfg *config.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		uid := c.GetString("user_id")
+		userID, err := primitive.ObjectIDFromHex(uid)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user"})
+			return
+		}
+
+		rideID, err := primitive.ObjectIDFromHex(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ride id"})
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+
+		col := cfg.MongoClient.Database(cfg.DBName).Collection("rides")
+
+		res, err := col.DeleteOne(
+			ctx,
+			bson.M{
+				"_id":     rideID,
+				"user_id": userID,
+			},
+		)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed deleting ride"})
+			return
+		}
+
+		if res.DeletedCount == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "ride not found"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ride deleted",
+			"id":      rideID.Hex(),
+		})
+	}
+}
