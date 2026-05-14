@@ -91,5 +91,7 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config) {
 	{
 		motorcycles.POST("", controllers.CreateMotorcycle(cfg))
 		motorcycles.GET("", controllers.ListMotorcycles(cfg))
+		motorcycles.PUT("/:id", controllers.UpdateMotorcycle(cfg))
+		motorcycles.DELETE("/:id", controllers.DeleteMotorcycle(cfg))
 	}
 }
